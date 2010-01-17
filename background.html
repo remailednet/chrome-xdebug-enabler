@@ -1,0 +1,75 @@
+<html>
+<head>
+<script>
+chrome.tabs.onUpdated.addListener(function(tabid){
+    chrome.tabs.getSelected(null, function(tab){
+
+        sites = localStorage["sites"];
+        sites = JSON.parse(sites);
+
+        baseDomain = tab.url.match(/:\/\/(.[^/]+)/)[1];
+
+        site = isValueInArray(sites, baseDomain);
+
+        if(site){
+            chrome.pageAction.show(tabid);
+            chrome.tabs.getSelected(null, function(tab){
+                chrome.tabs.sendRequest(tab.id,
+                    {cmd: "status", idekey: localStorage["xdebugIdeKey"]},
+                    function(response) {
+                        updateIcon(response.result, tabid);
+                    }
+                );
+            });
+        }
+    });
+});
+
+chrome.pageAction.onClicked.addListener(function(tab){
+    chrome.tabs.getSelected(null, function(tab){
+        chrome.tabs.sendRequest(tab.id,
+            {cmd: "toggle", idekey: localStorage["xdebugIdeKey"]},
+            function(response){
+                updateIcon(response.result, tab.id);
+            }
+        );
+    });
+});
+
+function updateIcon(status, tabid){
+    if(status){
+        chrome.pageAction.setTitle({
+            tabId: tabid,
+            title: "Xdebug enabled"
+        });
+
+        chrome.pageAction.setIcon({
+            tabId: tabid,
+             path: "images/green-16x16.png"
+         });
+
+    }else{
+        chrome.pageAction.setTitle({
+            tabId: tabid,
+            title: "Xdebug disabled"
+        });
+
+        chrome.pageAction.setIcon({
+           tabId: tabid,
+            path: "images/red-16x16.png"
+        });
+    }
+}
+
+// Borrowed from http://snipplr.com/view.php?codeview&id=12299
+function isValueInArray(arr, val) {
+    inArray = false;
+    for (i = 0; i < arr.length; i++)
+        if (val == arr[i])
+            inArray = true;
+    return inArray;
+}
+
+</script>
+</head>
+</html>

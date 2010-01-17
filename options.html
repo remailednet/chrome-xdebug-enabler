@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>XDebug Options</title>
+</head>
+<script type="text/javascript">
+function save_options() {
+    input = document.getElementById("idekey");
+    idekey = input.value;
+    localStorage["xdebugIdeKey"] = idekey;
+
+    siteBox = document.getElementById("siteBox");
+    sites = [];
+    for (i = 0; i < siteBox.length; i++){
+        sites.push(siteBox.options[i].value);
+    }
+    localStorage["sites"] = JSON.stringify(sites);
+}
+
+function restore_options(){
+    idekey = localStorage["xdebugIdeKey"];
+
+    if (!idekey){
+        idekey = "XDEBUG_ECLIPSE";
+    }
+    document.getElementById('idekey').value=idekey;
+
+    sites = localStorage["sites"];
+    sites = JSON.parse(sites);
+    for(i = 0; i < sites.length; i++){
+        addItem("siteBox", sites[i]);
+    }
+}
+
+
+function addSite() {
+    siteText = document.getElementById("newSite").value;
+    addItem("siteBox", siteText);
+    save_options();
+    document.getElementById("newSite").value = '';
+}
+
+
+function removeSelectedSite() {
+    siteBox = document.getElementById("siteBox");
+    for (i = siteBox.length-1; i >= 0; i--) {
+        if (siteBox.options[i].selected){
+            siteBox.remove(i);
+        }
+    }
+    save_options();
+}
+
+function addItem(id, value)
+{
+    opt = document.createElement("option");
+    document.getElementById(id).options.add(opt);
+    opt.value = value;
+    opt.text = value;
+}
+
+</script>
+<body onload="restore_options()">
+<p><label for="idekey">Idekey:</label> <input type="text" id="idekey" /></p>
+
+<p>
+Enabled sites:
+<br/>
+<input type="text" value="" id="newSite" style="width:400px">
+<button onclick="addSite()">Add</button>
+<br/>
+<select id="siteBox" multiple size="20" style="width: 400px;"></select>
+<button onclick="removeSelectedSite()">Remove selected</button>
+</p>
+<button onclick="save_options()">Save</button>
+
+<p>Add domains that you need to debug to the list.<br/>
+i.e.: www.example.com</p>
+<p>Only domains that are listed will have an icon to enable/disable Xdebug in the address bar.</p>
+<p>Based off of the 'Xdebug Helper' Firefox extension.<br/>
+    Icon from http://www.clker.com/clipart-12241.html
+</p>
+</body>
+</html>
