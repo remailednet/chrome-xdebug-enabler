@@ -1,7 +1,7 @@
 {
     "name": "Xdebug enabler",
     "description": "Toggle Xdebug from the address bar.",
-    "version": "0.1",
+    "version": "0.2",
     "icons": {
         "48": "images/green-48x48.png",
         "128": "images/green-128x128.png"
