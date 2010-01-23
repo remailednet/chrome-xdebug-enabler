@@ -1,0 +1,76 @@
+<html>
+<head>
+<script>
+chrome.tabs.onUpdated.addListener(function(tabid){
+    chrome.tabs.getSelected(null, function(tab){
+
+        sites = localStorage["sites"];
+        sites = JSON.parse(sites);
+
+        baseDomain = tab.url.match(/:\/\/(.[^/]+)/)[1];
+
+        match = isValueInArray(sites, baseDomain);
+
+        if(match){
+            chrome.pageAction.show(tabid);
+            chrome.tabs.getSelected(null, function(tab){
+                chrome.tabs.sendRequest(tab.id,
+                    {cmd: "status", idekey: localStorage["xdebugIdeKey"]},
+                    function(response) {
+                        updateIcon(response.result, tabid);
+                    }
+                );
+            });
+        }
+    });
+});
+
+chrome.pageAction.onClicked.addListener(function(tab){
+    chrome.tabs.getSelected(null, function(tab){
+        chrome.tabs.sendRequest(tab.id,
+            {cmd: "toggle", idekey: localStorage["xdebugIdeKey"]},
+            function(response){
+                updateIcon(response.result, tab.id);
+            }
+        );
+    });
+});
+
+function updateIcon(status, tabid){
+    if(status){
+        chrome.pageAction.setTitle({
+            tabId: tabid,
+            title: "Xdebug enabled"
+        });
+
+        chrome.pageAction.setIcon({
+            tabId: tabid,
+             path: "images/green-16x16.png"
+         });
+
+    }else{
+        chrome.pageAction.setTitle({
+            tabId: tabid,
+            title: "Xdebug disabled"
+        });
+
+        chrome.pageAction.setIcon({
+           tabId: tabid,
+            path: "images/red-16x16.png"
+        });
+    }
+}
+
+function isValueInArray(arr, val) {
+    for (i = 0; i < arr.length; i++){
+        re = new RegExp(arr[i], "gi");
+        if (re.test(val)){
+            return true;
+        }
+    }
+    return false;
+}
+
+</script>
+</head>
+</html>
