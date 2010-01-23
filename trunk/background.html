@@ -9,9 +9,9 @@ chrome.tabs.onUpdated.addListener(function(tabid){
 
         baseDomain = tab.url.match(/:\/\/(.[^/]+)/)[1];
 
-        site = isValueInArray(sites, baseDomain);
+        match = isValueInArray(sites, baseDomain);
 
-        if(site){
+        if(match){
             chrome.pageAction.show(tabid);
             chrome.tabs.getSelected(null, function(tab){
                 chrome.tabs.sendRequest(tab.id,
@@ -61,13 +61,14 @@ function updateIcon(status, tabid){
     }
 }
 
-// Borrowed from http://snipplr.com/view.php?codeview&id=12299
 function isValueInArray(arr, val) {
-    inArray = false;
-    for (i = 0; i < arr.length; i++)
-        if (val == arr[i])
-            inArray = true;
-    return inArray;
+    for (i = 0; i < arr.length; i++){
+        re = new RegExp(arr[i], "gi");
+        if (re.test(val)){
+            return true;
+        }
+    }
+    return false;
 }
 
 </script>
